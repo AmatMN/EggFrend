@@ -12,6 +12,11 @@ class Toolbar():
     __width = 16
     __height = 16
     __framebuf = framebuf.FrameBuffer(bytearray(160*64*1), __width, __height, framebuf.MONO_HLSB)
+    __isAsleep = False
+
+    @property
+    def isAsleep(self):
+        return self.__isAsleep
 
     @property
     def spacer(self):
@@ -71,6 +76,17 @@ class Toolbar():
     def addItem(self, tool):
         self.__spriteArray.append(tool)
     
+    def insertItem(self, toolIn, index):
+        self.__spriteArray.insert(index, toolIn)
+    
+    def insertItem(self, toolIn, toolOut):
+        for tool in self.__spriteArray:
+            if tool.name == toolOut.name:
+                x = self.__spriteArray.index(tool.name)
+                self.__spriteArray.insert(x, toolIn)
+                return
+        print("no matching item for toolOut")
+    
     def remove(self, tool):
         self.__spriteArray.remove(tool)
 
@@ -92,10 +108,16 @@ class Toolbar():
         self.unselect(oled)
         self.select(i + 1, oled)
 
-
     def B(self, oled):
-        print("B")
+        if self.selected_item == "feed":
+            print("feed the momo")
+        if self.selected_item == "sleep":
+            self.__isAsleep = not self.__isAsleep
+            if self.__isAsleep:
+                oled.invert(0)
+            else:
+                oled.invert(1)
+        self.unselect(oled)
 
     def X(self, oled):
-        print("X")
         self.unselect(oled)

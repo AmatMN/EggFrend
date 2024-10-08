@@ -32,7 +32,7 @@ class Anim():
     
     @property
     def currentFrame(self):
-        return self.__currentFrame
+        return __currentFrame
     
     @currentFrame.setter
     def currentFrame(self, f:int):
@@ -98,7 +98,7 @@ class Anim():
             print("Incorrect value")
 
     @property
-    def speed(self)->float:
+    def speed(self)->int:
         return self.__speed
     
     @speed.setter
@@ -112,7 +112,7 @@ class Anim():
     def cached(self)->bool:
         return self.__cached
 
-    def __init__(self, aType:str="", x:int=0, y:int=0, filename=None, loops:int=-1):
+    def __init__(self, aType:str=None, x:int=None, y:int=None, filename=None, loops:int=-1):
         if aType is not None:
             self.aType = aType
         if x:
@@ -194,20 +194,20 @@ class Anim():
             self.__currentFrame = 0
             self.__done = True
             return
-        if self.__currentFrame == len(self.__frames) - 1: 
+        if self.__currentFrame == len(self.__frames) - 1:    
             self.__currentFrame = 0
             self.__done = True
 
         if self.__inverted:
-            f = self.__frames[c].invert                         
+            f = self.__frames[c].invert
         else:
-            f = self.__frames[c].image                          
+            f = self.__frames[c].image
 
         self.__currentFrame += 1
         return f
 
     def __reverse(self):
-        c = len(self.__frames) - 1 - self.__currentFrame        
+        c = len(self.__frames) - 1 - self.__currentFrame
         if c < 0:
             print("error, frame does not exist")
             self.__currentFrame = 0
@@ -218,27 +218,27 @@ class Anim():
             self.__done = True
         
         if self.__inverted:
-            f = self.__frames[c].invert                         
+            f = self.__frames[c].invert
         else:
-            f = self.__frames[c].image                          
+            f = self.__frames[c].image
         
         self.__currentFrame += 1
         return f
     
     def __bounce(self):
-        if self.__currentFrame >= (len(self.__frames) * 2) - 2: 
+        if self.__currentFrame >= (len(self.__frames) * 2) - 2:
             self.__done = True
             return
-        if self.__currentFrame == (len(self.__frames) * 2) - 2: 
+        if self.__currentFrame == (len(self.__frames) * 2) - 2:
             self.__done = True
 
-        if self.__currentFrame < len(self.__frames):            
+        if self.__currentFrame < len(self.__frames):
             if self.__inverted:
-                f = self.__frames[self.__currentFrame].invert   
+                f = self.__frames[self.__currentFrame].invert
             else:
-                f = self.__frames[self.__currentFrame].image    
-        elif self.__currentFrame >= len(self.__frames):         
-            c = len(self.__frames) - 2 - (self.__currentFrame - len(self.__frames)) 
+                f = self.__frames[self.__currentFrame].image
+        elif self.__currentFrame >= len(self.__frames):
+            c = len(self.__frames) - 2 - (self.__currentFrame - len(self.__frames))
             if self.__inverted:
                 f = self.__frames[c].invert
             else:
