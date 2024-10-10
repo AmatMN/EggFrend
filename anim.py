@@ -14,11 +14,12 @@ class Anim():
     __animDone = False
     __loopCount = 0
     __inverted = False
-    __speed = 100
+    __speed = 1
     __maxSpeed = 50
     __pause = 0
     __skipPause = False
 
+    __name = ""
     __x = 0
     __y = 0
     __width = 16
@@ -32,14 +33,21 @@ class Anim():
     
     @property
     def currentFrame(self):
-        return __currentFrame
+        return self.__currentFrame
     
     @currentFrame.setter
     def currentFrame(self, f:int):
-        if f < len(self.__frames):
-            self.__currentFrame = f
-        else:
+        if f < 0: 
+            self.__currentFrame = len(self.__frames) - 1
+            print("frame " + str(f) + " does not exist, Frame is set to " + str(len(self.__frames) - 1))
+            return
+
+        if f >= len(self.__frames):
+            self.__currentFrame = 0
             print("frame " + str(f) + " does not exist")
+            
+        self.__currentFrame = f
+
 
     @property
     def aType(self):
@@ -65,6 +73,10 @@ class Anim():
         if value < -1:
             value = -1
         self.__loopCount = value 
+
+    @property
+    def name(self)->str:
+        return self.__name
 
     @property
     def width(self):
@@ -112,7 +124,7 @@ class Anim():
     def cached(self)->bool:
         return self.__cached
 
-    def __init__(self, aType:str=None, x:int=None, y:int=None, filename=None, loops:int=-1):
+    def __init__(self, frames=None, aType:str=None, x:int=None, y:int=None, filename=None, loops:int=-1, name = ""):
         if aType is not None:
             self.aType = aType
         if x:
@@ -121,6 +133,11 @@ class Anim():
             self.__y = y
         if filename is not None:
             self.__filename = filename
+        if frames is not None:
+            self.__frames = frames
+        if name is not "":
+            self.__name = name
+
         if loops < -1:
             loops = -1
         self.__loopCount = loops
@@ -129,7 +146,8 @@ class Anim():
     def load(self):
         """ load the animation files """
         if self.__filename is None:
-            print("no file name in animation")
+            if self.__frames is not []:
+                print("no file name in animation")
             return
         if not self.__cached:
             files = listdir()
@@ -184,6 +202,17 @@ class Anim():
         if frame is not None:
             oled.blit(frame, self.__x, self.__y)
             self.__pause = 0
+    
+    def drawFrame(self, oled, value:int = 0):
+        if value >= len(self.__frames) or value < 0:
+            print("error, frame " + str(value) + " does not exist")
+            return
+        if self.__inverted:
+            f = self.__frames[value].invert
+        else:
+            f = self.__frames[value].image
+        
+        oled.blit(f, self.__x, self.__y)
 
     """frame collectors"""
     def __default(self):

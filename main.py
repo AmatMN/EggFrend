@@ -5,6 +5,7 @@ from anim import Anim
 from button import Button
 from toolbar import Toolbar
 from stats import Stats
+from eventHandler import EventHandler
 import time
 import framebuf
 import math
@@ -25,15 +26,24 @@ screenSleep = False
 screenSleepTimeLimit = 3600000
 screenSleepTimer = 0
 
+unselectTimeLimit = 30000
+unselectTimer = 0
+
 oled.invert(1)
 
-sleepIcon = Sprite('sleep_icon.pbm', name = "sleep")
-wakeIcon = Sprite('wake_icon.pbm', name = "wake")
+sleepIcon = Anim(filename = 'sleep_icon', name = "sleep")
 feedIcon = Sprite('feed_icon.pbm', name = "feed")
+statsIcon = Sprite('stats_icon.pbm', name = "stats")
 
-tb = Toolbar(horizontal = 0)
+statSheet = Stats()
+
+eventHandler = EventHandler(statSheet)
+
+tb = Toolbar(eventHandler, horizontal = 0)
 tb.addItem(sleepIcon)
 tb.addItem(feedIcon)
+tb.addItem(statsIcon)
+
 
 idle = Anim(x=39, y=16, filename='momo_idle')
 idle.currentFrame = 1
@@ -43,15 +53,13 @@ sleep = Anim(x=39, y=16, filename='momo_sleep')
 sleep.currentFrame = 1
 sleep.speed = .6
 
-statSheet = Stats()
-
-
 oled.fill_rect(0,0,128,64,0)
 
 screenSleepTimer = time.ticks_ms()
+unselectTimer = time.ticks_ms()
 
 while True:
-    """screen sleep test"""
+    eventHandler.update()
     if ((time.ticks_ms() - screenSleepTimer) > screenSleepTimeLimit):
         if not screenSleep:
             oled.poweroff()
@@ -60,41 +68,42 @@ while True:
             oled.poweron()
             screenSleep = False
             screenSleepTimer = time.ticks_ms()
-        time.sleep(0.05)
+        time.sleep(0.1)
         continue
     else:
         oled.poweron()
         screenSleep = False
 
-
-    """button test"""
     if buttonA.is_pressed:
         tb.A(oled)
         screenSleepTimer = time.ticks_ms()
+        unselectTimer = time.ticks_ms()
     
     if buttonB.is_pressed:
         tb.B(oled)
         screenSleepTimer = time.ticks_ms()
+        unselectTimer = time.ticks_ms()
 
     if buttonX.is_pressed:
         tb.X(oled)
         screenSleepTimer = time.ticks_ms()
+        unselectTimer = time.ticks_ms()
 
-
-    """toolbar test code"""
-    if tb.isAsleep:
+    if (time.ticks_ms() - unselectTimer) > unselectTimeLimit:
+        tb.unselect(oled)
+    
+    if eventHandler.isAsleep:
         if sleep.done:
             oled.invert(0)
-            tb.insertItem(toolIn = sleepIcon, toolOut = wakeIcon)
         sleep.draw(oled)
     else:
         if idle.done:
             oled.invert(1)
-            tb.insertItem(toolIn = wakeIcon, toolOut = sleepIcon)
         idle.draw(oled)
 
-    oled.blit(feedIcon.image, feedIcon.x, feedIcon.y)
-
-    tb.draw(oled)
+    if eventHandler.statsState:
+        eventHandler.status(oled)
+    if tb.isOpen:
+        tb.draw(oled)
     oled.show()
     time.sleep(0.0417)

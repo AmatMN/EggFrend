@@ -1,4 +1,5 @@
 import ujson as json
+import time
 
 class Stats():
     __sleep = 100
@@ -12,63 +13,142 @@ class Stats():
     
     @property
     def sleep(self)->int:
-        return sleep
+        return self.__sleep
     
     @sleep.setter
     def sleep(self, value:int):
-        if self.__sleep + value < 0:
+        if value < 0:
+            if self.__sleep > 0:
+                print("sleep reached zero at :" + str(time.ticks_ms()))
             self.__sleep = 0
-            self.health = -1
+            self.incrementHealth(-2)
+        elif value > self.__sleepMax:
+            self.__sleep = self.__sleepMax
+        else:
+            self.__sleep = value
+        print("sleep:  " + str(self.__sleep))
+        self.saveStats()
+
+    def incrementSleep(self, value:int):
+        if self.__sleep + value < 0:
+            if self.__sleep > 0:
+                print("sleep reached zero at :" + str(time.ticks_ms()))
+            self.__sleep = 0
+            self.incrementHealth(-2)
         elif self.__sleep + value > self.__sleepMax:
             self.__sleep = self.__sleepMax
         else:
-            self.__sleep += value
+            self.__sleep = self.__sleep + value
+        print("sleep:  " + str(self.__sleep))
         self.saveStats()
+
+    @property
+    def sleepMax(self)->int:
+        return self.__sleepMax
 
     @property
     def hunger(self)->int:
-        return hunger
+        return self.__hunger
     
     @hunger.setter
     def hunger(self, value:int):
-        if self.__hunger + value < 0:
+        if value < 0:
+            if self.__hunger > 0:
+                print("hunger reached zero at :" + str(time.ticks_ms()))
             self.__hunger = 0
-            self.health = -1
+            self.incrementHealth(-3)
+        elif value > self.__hungerMax:
+            self.__hunger = self.__hungerMax
+        else:
+            self.__hunger = value
+        print("hunger: " + str(self.__hunger))
+        self.saveStats()
+
+    def incrementHunger(self, value:int):
+        if self.__hunger + value < 0:
+            if self.__hunger > 0:
+                print("hunger reached zero at :" + str(time.ticks_ms()))
+            self.__hunger = 0
+            self.incrementHealth(-3)
         elif self.__hunger + value > self.__hungerMax:
             self.__hunger = self.__hungerMax
         else:
-            self.__hunger += value
+            self.__hunger = self.__hunger + value
+        print("hunger: " + str(self.__hunger))
         self.saveStats()
+    
+    @property
+    def hungerMax(self)->int:
+        return self.__hungerMax
 
     @property
     def toilet(self)->int:
-        return toilet
+        return self.__toilet
     
     @toilet.setter
     def toilet(self, value:int):
-        if self.__toilet + value < 0:
+        if value < 0:
+            if self.__toilet > 0:
+                print("toilet reached zero at :" + str(time.ticks_ms()))
             self.__toilet = 0
-            self.health = -1
+            self.incrementHealth(-1)
+        elif value > self.__toiletMax:
+            self.__toilet = self.__toiletMax
+        else:
+            self.__sleep = value
+        print("toilet: " + str(self.__toilet))
+        self.saveStats()
+
+    def incrementToilet(self, value:int):
+        if self.__toilet + value < 0:
+            if self.__toilet > 0:
+                print("toilet reached zero at :" + str(time.ticks_ms()))
+            self.__toilet = 0
+            self.incrementHealth(-1)
         elif self.__toilet + value > self.__toiletMax:
             self.__toilet = self.__toiletMax
         else:
-            self.__sleep += value
+            self.__toilet = self.__toilet + value
+        print("toilet: " + str(self.__toilet))
         self.saveStats()
+    
+    @property
+    def toiletMax(self)->int:
+        return self.__toiletMax
 
     @property
     def health(self)->int:
-        return health
+        return self.__health
     
     @health.setter
     def health(self, value:int):
+        if value < 0:
+            if self.__health > 0:
+                print("health reached zero at :" + str(time.ticks_ms()))
+            self.__health = 0
+            # self.__death()
+        elif value > self.__healthMax:
+            self.__health = self.__healthMax
+        else:
+            self.__health = value
+        self.saveStats()
+
+    def incrementHealth(self, value:int):
         if self.__health + value < 0:
-            self.health = 0
-            self.__death()
+            if self.__health > 0:
+                print("health reached zero at :" + str(time.ticks_ms()))
+            self.__health = 0
+            # self.__death()
         elif self.__health + value > self.__healthMax:
             self.__health = self.__healthMax
         else:
-            self.__health += value
+            self.__health = value
+        print("toilet: " + str(self.__toilet))
         self.saveStats()
+
+    @property
+    def healthMax(self)->int:
+        return self.__healthMax
 
     def __init__(self):
         try:
